@@ -1,7 +1,6 @@
 # custom
 
 .config
-chat_ids.csv
 item_cache.json
 
 # -------------------------------------
