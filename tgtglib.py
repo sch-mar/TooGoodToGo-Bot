@@ -5,6 +5,7 @@ import ast
 import configparser
 from tgtg import TgtgClient
 import json
+import logging
 
 # get value from config
 def get_config(section, option, fallback = None):
@@ -67,7 +68,6 @@ def check_availability():
 
     # items
     items = client.get_items()
-    #print(items, file=open('items', 'w'))
 
     # build dict store_id: available and dict store_id: store_name
     available = {}
@@ -78,20 +78,21 @@ def check_availability():
         items_available = group['items_available']
         available[store_id] = items_available # dict
         stores[store_id] = store_name
-        #print(f"{items_available : <2} available at {store_name} ({store_id})")
+        logging.debug(f"{items_available : <2} available at {store_name} ({store_id})")
 
     # compare new availability with cache
     if os.path.isfile('item_cache.json'):
         item_cache = json.load(open('item_cache.json', 'r'))
         for id in available:
             if id in item_cache and item_cache[id] == 0 and available[id] > 0:
-                print("something is available at", stores[id])
+                logging.info("Something is available at", stores[id])
                 API_KEY = get_config('telegram', 'api_key')
                 bot = telebot.TeleBot(API_KEY)
                 chat_ids = get_config('telegram', 'chat_ids').split(',') # get chat ids
                 for chat_id in chat_ids:
-                    bot.send_message(chat_id, f"Something is available at {stores[id]}")
-        print("nothing else is available")
+                    logging.debug(f"sending message to {chat_id}")
+                    bot.send_message(chat_id, f"Something is available at {stores[id]}.")
+        logging.debug("nothing else is newly available")
 
     # cache dict locally
     json.dump(available, open('item_cache.json', 'w'))
