@@ -30,7 +30,7 @@ def check_availability():
         item_cache = json.load(open('item_cache.json', 'r'))
         for id in available:
             if id in item_cache and item_cache[id] == 0 and available[id] > 0:
-                logging.info("Something is available at", stores[id])
+                logging.info(f"Something is available at {stores[id]}.")
                 bot = telebot.TeleBot(config.get_config('telegram', 'api_key'))
                 chat_ids = config.get_config('telegram', 'chat_ids').split(',') # get chat ids
                 for chat_id in chat_ids:
