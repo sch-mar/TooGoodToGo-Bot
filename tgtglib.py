@@ -35,14 +35,13 @@ def rm_config(section, option=None):
 # --------------------------------------------------
 
 def bot():
-    API_KEY = get_config('telegram', 'api_key')
-    bot = telebot.TeleBot(API_KEY)
+    logging.info("starting bot")
+    bot = telebot.TeleBot(get_config('telegram', 'api_key'))
 
     @bot.message_handler(commands=["start"])
     def start(message):
         # current chat id
         CHAT_ID = message.chat.id
-        bot.send_message(CHAT_ID, "Welcome!")
         # add chat id to exisiting chat ids
         if get_config('telegram', 'chat_ids', '') == '':
             chat_ids = []
@@ -50,23 +49,31 @@ def bot():
             chat_ids = get_config('telegram', 'chat_ids', '').split(',') # get chat ids
         CHAT_ID = str(CHAT_ID) # int to str
         if CHAT_ID not in chat_ids:
+            logging.info(f"new chat added: {CHAT_ID}")
             chat_ids.append(CHAT_ID)
-        set_config('telegram', 'chat_ids', ','.join(chat_ids))
+            set_config('telegram', 'chat_ids', ','.join(chat_ids))
+            bot.send_message(CHAT_ID, "Welcome!")
+        else:
+            logging.info(f"chat {CHAT_ID} already configured")
+            bot.send_message(CHAT_ID, "Welcome! (again)")
+    
+    # message catchall
+    @bot.message_handler(func=lambda m: True)
+    def catchall(message):
+        logging.info(f"catchall message from {message.chat.id}:")
+        logging.debug(message)
+        bot.send_message(message.chat.id, "Excuse me?")
 
     #bot.infinity_polling()
     bot.polling()
 
 def check_availability():
+    logging.info("checking availabilty")
     # read credentials
-    # credentials = dict(ast.literal_eval(open("credentials", 'r').read()))
     ACCESS_TOKEN = get_config('tgtg', 'access_token')
     REFRESH_TOKEN = get_config('tgtg', 'refresh_token')
     USER_ID = get_config('tgtg', 'user_id')
-
-    # client
     client = TgtgClient(access_token=ACCESS_TOKEN, refresh_token=REFRESH_TOKEN, user_id=USER_ID)
-
-    # items
     items = client.get_items()
 
     # build dict store_id: available and dict store_id: store_name
@@ -86,13 +93,11 @@ def check_availability():
         for id in available:
             if id in item_cache and item_cache[id] == 0 and available[id] > 0:
                 logging.info("Something is available at", stores[id])
-                API_KEY = get_config('telegram', 'api_key')
-                bot = telebot.TeleBot(API_KEY)
+                bot = telebot.TeleBot(get_config('telegram', 'api_key'))
                 chat_ids = get_config('telegram', 'chat_ids').split(',') # get chat ids
                 for chat_id in chat_ids:
-                    logging.debug(f"sending message to {chat_id}")
+                    logging.info(f"sending message to {chat_id}")
                     bot.send_message(chat_id, f"Something is available at {stores[id]}.")
-        logging.debug("nothing else is newly available")
 
     # cache dict locally
     json.dump(available, open('item_cache.json', 'w'))
