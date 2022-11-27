@@ -6,7 +6,8 @@ import yaml
 import multiprocessing
 import time
 
-import tgtglib
+from tgtglib import bot
+from tgtglib import tgtg
 
 # start logger
 logging.config.dictConfig(yaml.load(open('log/log.config', 'r'), Loader=yaml.FullLoader))
@@ -14,10 +15,10 @@ logging.config.dictConfig(yaml.load(open('log/log.config', 'r'), Loader=yaml.Ful
 if __name__ == '__main__':
     logging.info('program start')
     while True:
-        p = multiprocessing.Process(target=tgtglib.bot, name="Bot")
+        p = multiprocessing.Process(target=bot.bot, name="Bot")
         p.start()
         time.sleep(60*15)
         if p.is_alive():
             p.terminate()
         p.join()
-        tgtglib.check_availability()
+        tgtg.check_availability()
