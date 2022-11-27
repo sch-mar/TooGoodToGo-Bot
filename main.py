@@ -8,13 +8,11 @@ import time
 
 import tgtglib
 
+# start logger
+logging.config.dictConfig(yaml.load(open('log/log.config', 'r'), Loader=yaml.FullLoader))
+
 if __name__ == '__main__':
-
-    # start logger
-    logging.config.dictConfig(yaml.load(open('log/log.config', 'r'), Loader=yaml.FullLoader))
-    logger = logging.getLogger()
-    logger.info('logger created')
-
+    logging.info('program start')
     while True:
         p = multiprocessing.Process(target=tgtglib.bot, name="Bot")
         p.start()
