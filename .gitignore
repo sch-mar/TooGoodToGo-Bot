@@ -1,8 +1,8 @@
 # custom
 
 .config
-item_cache.json
 .log*
+data/
 
 # -------------------------------------
 
