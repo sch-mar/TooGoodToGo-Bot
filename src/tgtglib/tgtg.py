@@ -1,9 +1,16 @@
 import logging
 from tgtglib import config
 from tgtg import TgtgClient
+from tgtglib import jsondb
 import os
 import json
 import telebot
+
+def login():
+    client = TgtgClient(email=config.get_config('tgtg', 'mail'))
+    credentials = client.get_credentials()
+    for key in credentials:
+        config.set_config('tgtg', key, credentials.get(key))
 
 def check_availability():
     logging.info("checking availabilty")
@@ -14,10 +21,10 @@ def check_availability():
     client = TgtgClient(access_token=ACCESS_TOKEN, refresh_token=REFRESH_TOKEN, user_id=USER_ID)
     items = client.get_items()
 
-    # build dict store_id: available and dict store_id: store_name
-    available = {}
-    stores = {}
-    for group in items:
+    # build dicts
+    available = {} # store_id: available
+    stores = {} # store_id: store_name
+    for group in items: # section
         store_id = group['store']['store_id']
         store_name = group['store']['store_name']
         items_available = group['items_available']
@@ -26,8 +33,9 @@ def check_availability():
         logging.debug(f"{items_available : <2} available at {store_name} ({store_id})")
 
     # compare new availability with cache
-    if os.path.isfile('item_cache.json'):
-        item_cache = json.load(open('item_cache.json', 'r'))
+    if jsondb.file_exists('data/item_cache.json'):
+        # item_cache = json.load(open('data/item_cache.json', 'r'))
+        item_cache = jsondb.selectall('data', 'item_cache.json')
         for id in available:
             if id in item_cache and item_cache[id] == 0 and available[id] > 0:
                 logging.info("Something is available at", stores[id])
@@ -38,4 +46,4 @@ def check_availability():
                     bot.send_message(chat_id, f"Something is available at {stores[id]}.")
 
     # cache dict locally
-    json.dump(available, open('item_cache.json', 'w'))
+    jsondb.recreate('data', 'item_cache.json', available)
