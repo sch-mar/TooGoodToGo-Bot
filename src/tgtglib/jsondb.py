@@ -35,7 +35,6 @@ def recreate(dir, file, data={}):
     path = dir.removesuffix('/') + '/' + file
     json.dump(data, open(path, 'w'), indent=4)
 
-
 def select(dir, file, key, section=None):
     path = dir.removesuffix('/') + '/' + file
     if not os.path.isfile(path):
@@ -61,3 +60,32 @@ def selectall(dir, file):
         logging.warning(f"File {path} does not exist. Nothing selected.")
         return False
     return json.load(open(path, 'r'))
+
+def select_possible(dir, file, key, section=None):
+    path = dir.removesuffix('/') + '/' + file
+    if not os.path.isfile(path):
+        return False
+    try:
+        cache = json.load(open(path, 'r'))
+    except:
+        return False
+    if section:
+        try:
+            v = cache[section][key]
+            return True
+        except:
+            return False
+    else:
+        try:
+            v = cache[key]
+            return True
+        except:
+            return False
+
+def selectall_possible(dir, file):
+    path = dir.removesuffix('/') + '/' + file
+    try:
+        json.load(open(path, 'r'))
+        return True
+    except:
+        return False
