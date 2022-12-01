@@ -9,6 +9,8 @@ import time
 from tgtglib import bot
 from tgtglib import tgtg
 
+import random
+
 # start logger
 logging.config.dictConfig(yaml.load(open('log/log.config', 'r'), Loader=yaml.FullLoader))
 
@@ -17,7 +19,7 @@ if __name__ == '__main__':
     while True:
         p = multiprocessing.Process(target=bot.bot, name="Bot")
         p.start()
-        time.sleep(5)
+        time.sleep(60 * 10 + random.random() * 10 * 60)
         if p.is_alive():
             p.terminate()
         p.join()
