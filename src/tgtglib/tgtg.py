@@ -12,14 +12,14 @@ def get_credentials(email, user_id):
 
 def check_availability():
     if not jsondb.selectall_possible('data', 'users.json'):
-        logging.info(f"no users registered")
+        logging.debug(f"no users registered")
         return
     users = [user for user in jsondb.selectall('data', 'users.json')]
     if len(users) == 0:
-        logging.info(f"no users registered")
+        logging.debug(f"no users registered")
         return
     for user in users:
-        logging.info(f"checking availabilty for user {user}")
+        logging.debug(f"checking availabilty for user {user}")
         # read credentials
         ACCESS_TOKEN = jsondb.select('data', 'users.json', "access_token", user)
         REFRESH_TOKEN = jsondb.select('data', 'users.json', "refresh_token", user)

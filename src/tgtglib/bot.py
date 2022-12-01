@@ -7,7 +7,7 @@ from datetime import datetime
 import re
 
 def bot():
-    logging.info("starting bot")
+    logging.debug("starting bot")
     bot = telebot.TeleBot(config.get_config('telegram', 'api_key'))
 
     @bot.message_handler(commands=["start"])
