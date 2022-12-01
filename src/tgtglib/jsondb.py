@@ -17,12 +17,14 @@ def create_file(path): # means file
     open(path, 'w').write("{}")
 
 def insert(dir, file, key, value, section=None):
+    key = str(key)
     path = dir.removesuffix('/') + '/' + file
     check_dir(dir)
     if not file_exists(path):
         create_file(path)
     cache = json.load(open(path, 'r'))
     if section:
+        section = str(section)
         if section not in cache:
             cache[section] = {key: value} # creates new section
         else:
@@ -36,12 +38,14 @@ def recreate(dir, file, data={}):
     json.dump(data, open(path, 'w'), indent=4)
 
 def select(dir, file, key, section=None):
+    key = str(key)
     path = dir.removesuffix('/') + '/' + file
     if not os.path.isfile(path):
         logging.warning(f"File {path} does not exist. Nothing selected.") # TODO: throw error
         return False
     cache = json.load(open(path, 'r'))
     if section:
+        section = str(section)
         try:
             return cache[section][key]
         except:
