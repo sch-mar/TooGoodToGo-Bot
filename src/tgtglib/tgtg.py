@@ -7,7 +7,6 @@ import telebot
 def get_credentials(email, user_id):
     client = TgtgClient(email=email)
     credentials = client.get_credentials()
-    credentials = {"ACCESS_TOKEN": "e30.eyJzdWIiOiI4MDQzMTI1MCIsImV4cCI6MTY2OTQ4MjgzNiwidCI6IjVsSkVVa1hVUUJxejhZSjJkVXlwVkE6MDoxIn0.PmuT5lxUzKh8ObfOGliY5b0iiH4tsIOLR4DFfdDCOVI", "REFRESH_TOKEN": "e30.eyJzdWIiOiI4MDQzMTI1MCIsImV4cCI6MTcwMDg0NjAzNiwidCI6Ilpyc2cxT2xrUUZDTVZRNGF2UjkycEE6MDowIn0.Gzaz7vct7Ox-LtrcW3X0DxcgJQnXdelpPiRk1kBN34I", "USER_ID": "80431250"}
     for key in credentials:
         jsondb.insert('data', 'users.json', key, credentials.get(key), user_id)
 
