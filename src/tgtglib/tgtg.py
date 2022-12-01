@@ -21,9 +21,9 @@ def check_availability():
     for user in users:
         logging.info(f"checking availabilty for user {user}")
         # read credentials
-        ACCESS_TOKEN = jsondb.select('data', 'users.json', "ACCESS_TOKEN", user)
-        REFRESH_TOKEN = jsondb.select('data', 'users.json', "REFRESH_TOKEN", user)
-        USER_ID = jsondb.select('data', 'users.json', "USER_ID", user)
+        ACCESS_TOKEN = jsondb.select('data', 'users.json', "access_token", user)
+        REFRESH_TOKEN = jsondb.select('data', 'users.json', "refresh_token", user)
+        USER_ID = jsondb.select('data', 'users.json', "user_id", user)
         client = TgtgClient(access_token=ACCESS_TOKEN, refresh_token=REFRESH_TOKEN, user_id=USER_ID)
         items = client.get_items()
 
