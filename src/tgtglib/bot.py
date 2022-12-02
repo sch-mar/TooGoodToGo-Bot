@@ -9,20 +9,21 @@ import re
 def bot():
     logging.debug("starting bot")
     bot = telebot.TeleBot(config.get_config('telegram', 'api_key'))
+    USERDB = config.get_config('DEFAULT', 'userdb')
 
     @bot.message_handler(commands=["start"])
     def start(message):
         # current chat id
         USER_ID = str(message.chat.id)
         # get existing users
-        if jsondb.select_possible('data', 'users.json', USER_ID):
-            user_ids = [user for user in jsondb.selectall('data', 'users.json')]
+        if jsondb.select_possible(USERDB, USER_ID):
+            user_ids = [user for user in jsondb.selectall(USERDB)]
         else:
             user_ids = []
         # add new user if necessary
         if USER_ID not in user_ids: # new user
             logging.warning(f"new user: {USER_ID}")
-            jsondb.insert('data', 'users.json', USER_ID, {'name': message.chat.first_name, 'signuptime': str(datetime.now())})
+            jsondb.insert(USERDB, USER_ID, {'name': message.chat.first_name, 'signuptime': str(datetime.now())})
             bot.send_message(USER_ID, "Welcome! Please make sure you have access to your mails either on desktop or you are able to manually open a link in a browser. If you just click the link on your mobile device, the TGTG app will open and the verification doesn't work through the app. Please provide the mail of your TGTG account:")
             bot.register_next_step_handler_by_chat_id(int(USER_ID), mailhandler)
         else:
