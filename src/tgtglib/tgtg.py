@@ -13,6 +13,7 @@ def get_credentials(email, user_id):
 
 def check_availability():
     USERDB = config.get_config('DEFAULT', 'userdb', dir='data')
+    MSGDB = config.get_config('DEFAULT', 'messagedb', dir='data')
     if not jsondb.selectall_possible(USERDB):
         logging.debug(f"no users registered")
         return
@@ -48,7 +49,7 @@ def check_availability():
                     logging.info(f"Something is available at {stores[id]}")
                     bot = telebot.TeleBot(config.get_config('telegram', 'api_key'))
                     logging.info(f"sending message to {user}")
-                    bot.send_message(user, f"Something is available at {stores[id]}.")
+                    bot.send_message(user, jsondb.select(MSGDB, 'new_availability').format(stores[id]))
 
         # save available
         jsondb.insert(USERDB, "item_cache", available, user)

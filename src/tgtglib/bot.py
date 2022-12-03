@@ -9,7 +9,8 @@ import re
 def bot():
     logging.debug("starting bot")
     bot = telebot.TeleBot(config.get_config('telegram', 'api_key'))
-    USERDB = config.get_config('DEFAULT', 'userdb')
+    USERDB = config.get_config('DEFAULT', 'userdb', dir='data')
+    MSGDB = config.get_config('DEFAULT', 'messagedb', dir='data')
 
     @bot.message_handler(commands=["start"])
     def start(message):
@@ -24,30 +25,30 @@ def bot():
         if USER_ID not in user_ids: # new user
             logging.warning(f"new user: {USER_ID}")
             jsondb.insert(USERDB, USER_ID, {'name': message.chat.first_name, 'signuptime': str(datetime.now())})
-            bot.send_message(USER_ID, "Welcome! Please make sure you have access to your mails either on desktop or you are able to manually open a link in a browser. If you just click the link on your mobile device, the TGTG app will open and the verification doesn't work through the app. Please provide the mail of your TGTG account:")
+            bot.send_message(USER_ID, jsondb.select(MSGDB, 'welcome'))
             bot.register_next_step_handler_by_chat_id(int(USER_ID), mailhandler)
         else:
             logging.info(f"user {USER_ID} already configured")
-            bot.send_message(USER_ID, "Hi! I know you already!")
+            bot.send_message(USER_ID, jsondb.select(MSGDB, 'nth_welcome').format(jsondb.select(USERDB, 'name', message.chat.id)))
 
     # message catchall
     @bot.message_handler(func=lambda message: True)
     def catchall(message):
         logging.info(f"catchall message from {message.chat.id}")
         logging.debug(message)
-        bot.send_message(message.chat.id, "Excuse me?")
+        bot.send_message(message.chat.id, jsondb.select(MSGDB, 'catchall'))
 
     # other handlers
     def mailhandler(message):
         mail_pattern = re.compile("""(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])""")
         if mail_pattern.match(message.text):
             logging.info(f"starting get_credentials")
-            bot.send_message(message.chat.id, "Please open the link and confirm the login.")
+            bot.send_message(message.chat.id, jsondb.select(MSGDB, 'open_link').format(message.text))
             tgtg.get_credentials(message.text, message.chat.id)
             logging.info(f"finished get_credentials")
-            bot.send_message(message.chat.id, "Thank you, login succesful")
+            bot.send_message(message.chat.id, jsondb.select(MSGDB, 'login_success'))
         else:
-            bot.send_message(message.chat.id, "That is not a valid address, please try again.")
+            bot.send_message(message.chat.id, jsondb.select(MSGDB, 'invalid_mail'))
             bot.register_next_step_handler_by_chat_id(int(message.chat.id), mailhandler)
     
     #bot.infinity_polling()
