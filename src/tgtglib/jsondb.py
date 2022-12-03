@@ -2,7 +2,11 @@ import os
 import logging
 import json
 
-# only for 2D-files
+DEFAULT_DIR = 'data'
+
+"""
+only for 2D-files
+"""
 
 def check_dir(dir):
     if not os.path.isdir(dir):
@@ -12,11 +16,11 @@ def check_dir(dir):
 def file_exists(path):
     return os.path.isfile(path)
 
-def create_file(path): # means file
+def create_file(path):
     logging.debug(f"creating file {path}")
     open(path, 'w').write("{}")
 
-def insert(dir, file, key, value, section=None):
+def insert(file, key, value, section=None, dir=DEFAULT_DIR):
     key = str(key)
     path = dir.removesuffix('/') + '/' + file
     check_dir(dir)
@@ -33,11 +37,11 @@ def insert(dir, file, key, value, section=None):
         cache[key] = value
     open(path, 'w').write(json.dumps(cache, indent=4))
 
-def recreate(dir, file, data={}):
+def recreate(file, data={}, dir=DEFAULT_DIR):
     path = dir.removesuffix('/') + '/' + file
     json.dump(data, open(path, 'w'), indent=4)
 
-def select(dir, file, key, section=None):
+def select(file, key, section=None, dir=DEFAULT_DIR):
     key = str(key)
     path = dir.removesuffix('/') + '/' + file
     if not os.path.isfile(path):
@@ -58,14 +62,14 @@ def select(dir, file, key, section=None):
             logging.warning(f"Error selecting {key} in {path}")
             return False
 
-def selectall(dir, file):
+def selectall(file, dir=DEFAULT_DIR):
     path = dir.removesuffix('/') + '/' + file
     if not os.path.isfile(path):
         logging.warning(f"File {path} does not exist. Nothing selected.")
         return False
     return json.load(open(path, 'r'))
 
-def select_possible(dir, file, key, section=None):
+def select_possible(file, key, section=None, dir=DEFAULT_DIR):
     path = dir.removesuffix('/') + '/' + file
     if not os.path.isfile(path):
         return False
@@ -86,7 +90,7 @@ def select_possible(dir, file, key, section=None):
         except:
             return False
 
-def selectall_possible(dir, file):
+def selectall_possible(file, dir=DEFAULT_DIR):
     path = dir.removesuffix('/') + '/' + file
     try:
         json.load(open(path, 'r'))

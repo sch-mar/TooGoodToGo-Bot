@@ -1,8 +1,13 @@
 # custom
 
-.config
-.log*
-data/
+# config directory
+config/
+# [spaghetti] everything in data/, log/ except .config and messages.json
+data/*
+log/*
+!.config
+!messages.json
+
 
 # -------------------------------------
 

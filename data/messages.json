@@ -1,0 +1,9 @@
+{
+    "welcome": "Welcome!\\nPlease make sure you currently have access to your mails either on desktop or you are able to manually open a link in a browser. If you just click the link on your mobile device, the TGTG app will open and the verification doesn't work this way.\\nPlease provide the mail of your TGTG account:",
+    "nth_welcome": "Hi {}. I know you already.",
+    "catchall": "I'm sorry, I didn't understand.",
+    "open_link": "Please open the link sent to {} and confirm the login.",
+    "login_success": "Thank you, login succesful. Everything is setup and you will start to receive notifications for new availabilities of you favorite stores.",
+    "invalid_mail": "That is not a valid address, please try again.",
+    "new_availability": "Something is available at {}."
+}

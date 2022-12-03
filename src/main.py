@@ -12,7 +12,7 @@ from tgtglib import tgtg
 import random
 
 # start logger
-logging.config.dictConfig(yaml.load(open('log/log.config', 'r'), Loader=yaml.FullLoader))
+logging.config.dictConfig(yaml.load(open('log/.config', 'r'), Loader=yaml.FullLoader))
 
 if __name__ == '__main__':
     logging.info('program start')
