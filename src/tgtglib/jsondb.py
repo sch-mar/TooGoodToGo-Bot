@@ -18,7 +18,7 @@ def file_exists(path):
 
 def create_file(path):
     logging.debug(f"creating file {path}")
-    open(path, 'w').write("{}")
+    open(path, 'w', encoding='utf8').write("{}")
 
 def insert(file, key, value, section=None, dir=DEFAULT_DIR):
     key = str(key)
@@ -26,7 +26,7 @@ def insert(file, key, value, section=None, dir=DEFAULT_DIR):
     check_dir(dir)
     if not file_exists(path):
         create_file(path)
-    cache = json.load(open(path, 'r'))
+    cache = json.load(open(path, 'r', encoding='utf8'))
     if section:
         section = str(section)
         if section not in cache:
@@ -35,11 +35,11 @@ def insert(file, key, value, section=None, dir=DEFAULT_DIR):
             cache[section][key] = value # adds to existing section
     else:
         cache[key] = value
-    open(path, 'w').write(json.dumps(cache, indent=4))
+    open(path, 'w', encoding='utf8').write(json.dumps(cache, indent=4))
 
 def recreate(file, data={}, dir=DEFAULT_DIR):
     path = dir.removesuffix('/') + '/' + file
-    json.dump(data, open(path, 'w'), indent=4)
+    json.dump(data, open(path, 'w', encoding='utf8'), indent=4)
 
 def select(file, key, section=None, dir=DEFAULT_DIR):
     key = str(key)
@@ -47,7 +47,7 @@ def select(file, key, section=None, dir=DEFAULT_DIR):
     if not os.path.isfile(path):
         logging.warning(f"File {path} does not exist. Nothing selected.") # TODO: throw error
         return False
-    cache = json.load(open(path, 'r'))
+    cache = json.load(open(path, 'r', encoding='utf8'))
     if section:
         section = str(section)
         try:
@@ -67,14 +67,14 @@ def selectall(file, dir=DEFAULT_DIR):
     if not os.path.isfile(path):
         logging.warning(f"File {path} does not exist. Nothing selected.")
         return False
-    return json.load(open(path, 'r'))
+    return json.load(open(path, 'r', encoding='utf8'))
 
 def select_possible(file, key, section=None, dir=DEFAULT_DIR):
     path = dir.removesuffix('/') + '/' + file
     if not os.path.isfile(path):
         return False
     try:
-        cache = json.load(open(path, 'r'))
+        cache = json.load(open(path, 'r', encoding='utf8'))
     except:
         return False
     if section:
@@ -93,7 +93,7 @@ def select_possible(file, key, section=None, dir=DEFAULT_DIR):
 def selectall_possible(file, dir=DEFAULT_DIR):
     path = dir.removesuffix('/') + '/' + file
     try:
-        json.load(open(path, 'r'))
+        json.load(open(path, 'r', encoding='utf8'))
         return True
     except:
         return False
