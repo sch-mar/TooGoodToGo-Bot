@@ -12,7 +12,7 @@ config files.
 
 def get(keys: list, dir=DEFAULT_DIR):
     path = dir.removesuffix('/') + '/.config'
-    cache = yaml.load(open(path, 'r'), Loader=yaml.FullLoader)
+    cache = yaml.load(open(path, 'r', encoding='utf8'), Loader=yaml.FullLoader)
     for key in keys:
         cache = cache.get(key)
     if cache is not None:
@@ -22,7 +22,7 @@ def get(keys: list, dir=DEFAULT_DIR):
 
 def set(keys: list, value, dir=DEFAULT_DIR):
     path = dir.removesuffix('/') + '/.config'
-    cache = yaml.load(open(path, 'r'), Loader=yaml.FullLoader)
+    cache = yaml.load(open(path, 'r', encoding='utf8'), Loader=yaml.FullLoader)
     try:
         # credit to @Backuriu and @Christopher Shymansky: https://stackoverflow.com/a/56385521
         sub_d = cache
@@ -34,11 +34,11 @@ def set(keys: list, value, dir=DEFAULT_DIR):
         sub_d[keys[-1]] = value
     except:
         raise KeyError
-    yaml.dump(cache, open(path, 'w'), yaml.Dumper)
+    yaml.dump(cache, open(path, 'w', encoding='utf8'), yaml.Dumper)
 
 def rm(keys: list, dir=DEFAULT_DIR):
     path = dir.removesuffix('/') + '/.config'
-    cache = yaml.load(open(path, 'r'), Loader=yaml.FullLoader)
+    cache = yaml.load(open(path, 'r', encoding='utf8'), Loader=yaml.FullLoader)
     try:
         sub_d = cache
         for ind, key in enumerate(keys[:-1]):
@@ -49,7 +49,7 @@ def rm(keys: list, dir=DEFAULT_DIR):
         sub_d.pop(keys[-1])
     except:
         raise KeyError
-    yaml.dump(cache, open(path, 'w'), yaml.Dumper)
+    yaml.dump(cache, open(path, 'w', encoding='utf8'), yaml.Dumper)
 
 # old functions using ini specification
 
@@ -68,7 +68,7 @@ def set_ini(section, option, value, dir=DEFAULT_DIR):
     if section not in config:
         config[section] = {}
     config[section][option] = value
-    config.write(open(path, 'w'))
+    config.write(open(path, 'w', encoding='utf8'))
 
 # remove section or option from config
 def rm_ini(section, option=None, dir=DEFAULT_DIR):
@@ -79,4 +79,4 @@ def rm_ini(section, option=None, dir=DEFAULT_DIR):
         config.remove_section(section)
     else:
         config.remove_option(section, option)
-    config.write(open(path, 'w'))
+    config.write(open(path, 'w', encoding='utf8'))
