@@ -50,7 +50,11 @@ def check_availability():
                     logging.info(f"Something is available at {stores[id]}")
                     bot = telebot.TeleBot(config.get(['telegram', 'api_key']))
                     logging.info(f"sending message to {user}")
-                    bot.send_message(user, config.get(['messages', USER_LANG, 'new_availability'], dir=MSGDIR).format(stores[id]))
+                    if available[id] > 1:
+                        plural_suffix = 's'
+                    else:
+                        plural_suffix = ''
+                    bot.send_message(user, config.get(['messages', USER_LANG, 'new_availability'], dir=MSGDIR).format(available[id], plural_suffix, stores[id]))
 
         # save available
         jsondb.insert(USERDB, "item_cache", available, user)
