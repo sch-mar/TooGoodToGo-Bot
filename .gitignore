@@ -2,7 +2,7 @@
 
 # config directory
 config/
-# [spaghetti] everything in data/, log/ except .config and messages.json
+# [spaghetti] everything in data/, log/ except .config
 data/*
 log/*
 !.config
