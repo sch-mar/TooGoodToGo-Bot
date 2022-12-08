@@ -3,6 +3,7 @@ import telebot
 from tgtglib import config
 from tgtglib import jsondb
 from tgtglib import tgtg
+from tgtglib import cookie
 from datetime import datetime
 import re
 
@@ -29,6 +30,7 @@ def bot():
             user_ids = []
         # add new user if necessary
         if USER_ID not in user_ids: # new user
+            cookie.set('registration')
             logging.warning(f"new user: {USER_ID}")
             jsondb.insert(USERDB, USER_ID, {'name': message.chat.first_name, 'signuptime': str(datetime.now())})
             bot.send_message(USER_ID, '\n'.join([config.get(['messages', l, 'choose_language'], MSGDIR) for l in languages]), reply_markup=language_markup)
@@ -57,6 +59,7 @@ def bot():
             tgtg.get_credentials(message.text, USER_ID)
             logging.info(f"finished get_credentials")
             bot.send_message(USER_ID, config.get(['messages', USER_LANG, 'login_success'], dir=MSGDIR))
+            cookie.rm('registration')
         else:
             bot.send_message(USER_ID, config.get(['messages', USER_LANG, 'invalid_mail'], dir=MSGDIR))
             bot.register_next_step_handler_by_chat_id(int(USER_ID), mail_handler)
