@@ -1,8 +1,12 @@
 # custom
 
-.config
-item_cache.json
-.log*
+# config directory
+config/
+# [spaghetti] everything in data/, log/ except .config
+data/*
+log/*
+!.config
+
 
 # -------------------------------------
 
