@@ -1,38 +1,29 @@
+[![GitHub release](https://img.shields.io/github/release/sch-mar/TooGoodToGo-Bot.svg)](https://GitHub.com/sch-mar/TooGoodToGo-Bot/releases/) [![GitHub latest commit](https://badgen.net/github/last-commit/sch-mar/TooGoodToGo-Bot)](https://GitHub.com/sch-mar/TooGoodToGo-Bot/commit/) [![GitHub issues](https://img.shields.io/github/issues/sch-mar/TooGoodToGo-Bot.svg)](https://GitHub.com/sch-mar/TooGoodToGo-Bot/issues/) [![GitHub license](https://img.shields.io/github/license/sch-mar/TooGoodToGo-Bot.svg)](https://github.com/sch-mar/TooGoodToGo-Bot/blob/master/LICENSE)
+
 # TooGoodToGo Notification Bot
 
----
+Informs users about new availabilities at their favorite stores.
 
-**W I P**
+## setup
 
----
+Clone repository or download archive manually.
 
-## config
-
-create a ```.config``` file using the following template
-
-```ini
-[telegram]
-api_key = <your bots api key>
-
-[tgtg]
-mail = <the mail of your tgtg account>
+```git
+# using ssh
+git clone git@github.com:sch-mar/TooGoodToGo-Bot.git
 ```
 
-## menu
+Create a ```/config/.config``` file using the following template.
 
-### /start
+```yaml
+telegram:
+    api_key: <your_bots_api_key>
+```
 
-- welcome + info
+Install libraries from ```.requirements```
 
-### /setup
+```bash
+python3 -m pip install -r .requirements
+```
 
-- new user
-- get credentials
-
-### /setinterval
-
-- change default interval
-
-### /deleteuser
-
-- delete all user information
+Run ```python3 /src/main.py```. To ensure persistency use nohup, tmux etc.
