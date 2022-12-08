@@ -24,7 +24,6 @@ def set(keys: list, value, dir=DEFAULT_DIR):
     path = dir.removesuffix('/') + '/.config'
     cache = yaml.load(open(path, 'r', encoding='utf8'), Loader=yaml.FullLoader)
     try:
-        # credit to @Backuriu and @Christopher Shymansky: https://stackoverflow.com/a/56385521
         sub_d = cache
         for ind, key in enumerate(keys[:-1]):
             if not ind:
