@@ -23,7 +23,9 @@ if __name__ == '__main__':
         p = multiprocessing.Process(target=bot.bot, name="Bot")
         p.start()
         # wait 5-15 min before checking availability
-        time.sleep(60 * 5 + random.random() * 10 * 60)
+        timer = 60 * 5 + random.random() * 10 * 60
+        logging.debug(f"sleeping for {timer} seconds")
+        time.sleep(timer)
         # check for active registration process and wait if there is one
         while cookie.exists('registration'):
             logging.info("registration in process, waiting")

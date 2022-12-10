@@ -97,5 +97,10 @@ def bot():
         bot.register_next_step_handler_by_chat_id(int(USER_ID), mail_handler)
 
     
-    #bot.infinity_polling()
-    bot.polling()
+    # run bot
+    while True:
+        try:
+            bot.polling()
+        except Exception as e:
+            logging.warning(f"Exception while polling: {e}")
+            
