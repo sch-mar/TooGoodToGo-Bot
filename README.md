@@ -13,7 +13,7 @@ Clone repository or download archive manually.
 git clone git@github.com:sch-mar/TooGoodToGo-Bot.git
 ```
 
-Create a ```/config/.config``` file using the following template.
+Create a ```config/.config``` file using the following template.
 
 ```yaml
 telegram:
@@ -26,4 +26,8 @@ Install libraries from ```.requirements```
 python3 -m pip install -r .requirements
 ```
 
-Run ```python3 /src/main.py```. To ensure persistency use nohup, tmux etc.
+Run ```main.py```. Python 3.9 is required, so to make sure you can use ```python3.9```. For persistency use nohup, tmux etc.
+
+```bash
+python3 src/main.py
+```
