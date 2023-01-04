@@ -30,7 +30,7 @@ def bot():
     def start(message):
         # constants
         USER_ID = str(message.chat.id)
-        USER_LANG = jsondb.select('users.json', 'language', USER_ID)
+        USER_LANG = jsondb.select(USERDB, 'language', USER_ID)
 
         # get existing users
         if jsondb.select_possible(USERDB, USER_ID):
@@ -65,7 +65,7 @@ def bot():
     def catchall(message):
         # constants
         USER_ID = message.chat.id
-        USER_LANG = jsondb.select('users.json', 'language', USER_ID)
+        USER_LANG = jsondb.select(USERDB, 'language', USER_ID)
 
         logging.info(f"catchall message from {USER_ID}")
         logging.debug(message)
@@ -78,7 +78,7 @@ def bot():
     def mail_handler(message):
         # constants
         USER_ID = message.chat.id
-        USER_LANG = jsondb.select('users.json', 'language', USER_ID)
+        USER_LANG = jsondb.select(USERDB, 'language', USER_ID)
 
         # check mail for validity
         mail_pattern = re.compile("""(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])""")
@@ -121,12 +121,12 @@ def bot():
         logging.info(f"saving language '{USER_LANG}")
 
         # write language to db
-        jsondb.insert('users.json', 'language', USER_LANG, USER_ID)
+        jsondb.insert(USERDB, 'language', USER_LANG, USER_ID)
 
         # prompt for mail input
         bot.send_message(USER_ID, config.get(
             ['messages', USER_LANG, 'get_mail'], dir=MSGDIR))
-            
+
         bot.register_next_step_handler_by_chat_id(int(USER_ID), mail_handler)
 
     # run bot

@@ -41,7 +41,7 @@ def check_availability():
 
     for user in users:
         # variables
-        USER_LANG = jsondb.select('users.json', 'language', user)
+        USER_LANG = jsondb.select(USERDB, 'language', user)
 
         logging.debug(f"checking availabilty for user {user}")
 
@@ -98,6 +98,6 @@ def check_availability():
                     # send message
                     bot.send_message(user, msg.format(
                         available[id], stores[id]))
-                        
+
         # overwrite available items in db
         jsondb.insert(USERDB, "item_cache", available, user)
