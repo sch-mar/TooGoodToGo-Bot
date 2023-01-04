@@ -39,6 +39,9 @@ def check_availability():
         logging.debug(f"no users registered")
         return
 
+    # bot
+    bot = None
+
     for user in users:
         # variables
         USER_LANG = jsondb.select(USERDB, 'language', user)
@@ -83,7 +86,9 @@ def check_availability():
                     logging.info(f"Something is available at {stores[id]}")
 
                     # initiate bot
-                    bot = telebot.TeleBot(config.get(['telegram', 'api_key']))
+                    if not bot:
+                        bot = telebot.TeleBot(
+                            config.get(['telegram', 'api_key']))
 
                     logging.info(f"sending message to {user}")
 
@@ -101,3 +106,7 @@ def check_availability():
 
         # overwrite available items in db
         jsondb.insert(USERDB, "item_cache", available, user)
+
+    # terminate bot
+    if bot:
+        bot.close
