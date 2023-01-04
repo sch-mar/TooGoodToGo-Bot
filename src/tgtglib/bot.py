@@ -26,6 +26,7 @@ def bot():
         language_markup.row(telebot.types.KeyboardButton(
             config.get(['languages', language], MSGDIR)))
 
+
     @bot.message_handler(commands=["start"])
     def start(message):
         # constants
@@ -60,6 +61,7 @@ def bot():
             bot.send_message(USER_ID, config.get(['messages', USER_LANG, 'nth_welcome'], dir=MSGDIR).format(
                 jsondb.select(USERDB, 'name', USER_ID)))
 
+
     # message catchall for unhandled messages
     @bot.message_handler(func=lambda message: True)
     def catchall(message):
@@ -73,6 +75,7 @@ def bot():
         # send message
         bot.send_message(USER_ID, config.get(
             ['messages', USER_LANG, 'catchall'], dir=MSGDIR))
+
 
     # other handlers
     def mail_handler(message):
@@ -102,6 +105,8 @@ def bot():
             # remove cookie to enable main loop to resume
             cookie.rm('registration')
         else:
+            logging.info(f"invalid mail")
+
             # reprompt mail input
             bot.send_message(USER_ID, config.get(
                 ['messages', USER_LANG, 'invalid_mail'], dir=MSGDIR))
@@ -109,25 +114,41 @@ def bot():
             bot.register_next_step_handler_by_chat_id(
                 int(USER_ID), mail_handler)
 
+
     def language_handler(message):
         # language dictionary
-        lang_dict = {config.get(['languages', l], MSGDIR): l for l in [
-            language for language in languages]}
+        lang_dict = {config.get(['languages', language], MSGDIR): language for language in languages}
 
         # constants
         USER_ID = message.chat.id
-        USER_LANG = lang_dict.get(message.text)
+        USER_LANG = lang_dict.get(message.text, None)
 
-        logging.info(f"saving language '{USER_LANG}")
+        if USER_LANG:
+            logging.info(f"saving language '{USER_LANG}")
 
-        # write language to db
-        jsondb.insert(USERDB, 'language', USER_LANG, USER_ID)
+            # write language to db
+            jsondb.insert(USERDB, 'language', USER_LANG, USER_ID)
 
-        # prompt for mail input
-        bot.send_message(USER_ID, config.get(
-            ['messages', USER_LANG, 'get_mail'], dir=MSGDIR))
+            # delete language selection markup
+            delete_language_markup = telebot.types.ReplyKeyboardRemove()
 
-        bot.register_next_step_handler_by_chat_id(int(USER_ID), mail_handler)
+            # prompt for mail input
+            bot.send_message(USER_ID, config.get(
+                ['messages', USER_LANG, 'get_mail'], dir=MSGDIR),
+                reply_markup=delete_language_markup)
+
+            bot.register_next_step_handler_by_chat_id(int(USER_ID), mail_handler)
+        else:
+            # reprompt language selection
+            logging.info(f"invalid language")
+            
+            # set language
+            bot.send_message(USER_ID, '\n'.join([config.get(
+                ['messages', l, 'choose_language'], MSGDIR) for l in languages]), reply_markup=language_markup)
+            bot.register_next_step_handler_by_chat_id(
+                int(USER_ID), language_handler)
+
+
 
     # run bot
     while True:
