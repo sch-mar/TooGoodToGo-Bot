@@ -149,7 +149,6 @@ def bot():
                 int(USER_ID), language_handler)
 
 
-
     # run bot
     while True:
         try:
