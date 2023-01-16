@@ -42,6 +42,22 @@ def insert(file, key, value, section=None, dir=DEFAULT_DIR):
     open(path, 'w', encoding='utf8').write(json.dumps(cache, indent=4))
 
 
+def remove(file, key, section=None, dir=DEFAULT_DIR):
+    key=str(key)
+    path = dir.removesuffix('/') + '/' + file
+    if file_exists(path):
+        cache = json.load(open(path, 'r', encoding='utf8'))
+        if section:
+            section = str(section)
+            if section in cache:
+                cache[section].pop(key, None)
+                open(path, 'w', encoding='utf8').write(json.dumps(cache, indent=4))
+        else:
+            if key in cache:
+                cache.pop(key, None)
+                open(path, 'w', encoding='utf8').write(json.dumps(cache, indent=4))
+
+
 def recreate(file, data={}, dir=DEFAULT_DIR):
     path = dir.removesuffix('/') + '/' + file
     json.dump(data, open(path, 'w', encoding='utf8'), indent=4)

@@ -25,6 +25,13 @@ def bot():
     for language in languages:
         language_markup.row(telebot.types.KeyboardButton(
             config.get(['languages', language], MSGDIR)))
+    
+    # fail markup for failed registrations
+    fail_markup = telebot.types.ReplyKeyboardMarkup(one_time_keyboard=True)
+    fail_markup.row(telebot.types.KeyboardButton('/start'))
+
+    # deletion markup
+    deletion_markup = telebot.types.ReplyKeyboardRemove()
 
 
     @bot.message_handler(commands=["start"])
@@ -97,16 +104,26 @@ def bot():
                 ['messages', USER_LANG, 'open_link'], dir=MSGDIR).format(mail))
 
             # get credentials from api
-            tgtg.get_credentials(mail, USER_ID)
+            try:
+                tgtg.get_credentials(mail, USER_ID)
+            except Exception as e:
+                logging.warning(f"Exception in get_credentials: {e}")
 
-            logging.info(f"finished get_credentials")
+                # aborting registration
+                bot.send_message(USER_ID, config.get(
+                    ['messages', USER_LANG, 'login_fail'], dir=MSGDIR), reply_markup=fail_markup)
 
-            # send welcome message
-            bot.send_message(USER_ID, config.get(
-                ['messages', USER_LANG, 'login_success'], dir=MSGDIR))
+                # remove user fragments from db
+                jsondb.remove(USERDB, USER_ID)
+            else:
+                logging.info(f"finished get_credentials")
 
-            # remove cookie to enable main loop to resume
-            cookie.rm('registration')
+                # send welcome message
+                bot.send_message(USER_ID, config.get(
+                    ['messages', USER_LANG, 'login_success'], dir=MSGDIR))
+            finally:
+                # remove cookie to enable main loop to resume
+                cookie.rm('registration')
         else:
             logging.info(f"invalid mail")
 
@@ -132,13 +149,10 @@ def bot():
             # write language to db
             jsondb.insert(USERDB, 'language', USER_LANG, USER_ID)
 
-            # delete language selection markup
-            delete_language_markup = telebot.types.ReplyKeyboardRemove()
-
             # prompt for mail input
             bot.send_message(USER_ID, config.get(
                 ['messages', USER_LANG, 'get_mail'], dir=MSGDIR),
-                reply_markup=delete_language_markup)
+                reply_markup=deletion_markup)
 
             bot.register_next_step_handler_by_chat_id(int(USER_ID), mail_handler)
         else:
