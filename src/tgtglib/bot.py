@@ -83,18 +83,21 @@ def bot():
         USER_ID = message.chat.id
         USER_LANG = jsondb.select(USERDB, 'language', USER_ID)
 
+        # lowercase mail
+        mail = message.text.lower()
+
         # check mail for validity
         mail_pattern = re.compile("""(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])""")
 
-        if mail_pattern.match(message.text):
+        if mail_pattern.match(mail):
             logging.info(f"starting get_credentials")
 
             # prompt for opening link
             bot.send_message(USER_ID, config.get(
-                ['messages', USER_LANG, 'open_link'], dir=MSGDIR).format(message.text))
+                ['messages', USER_LANG, 'open_link'], dir=MSGDIR).format(mail))
 
             # get credentials from api
-            tgtg.get_credentials(message.text, USER_ID)
+            tgtg.get_credentials(mail, USER_ID)
 
             logging.info(f"finished get_credentials")
 
