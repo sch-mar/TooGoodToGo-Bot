@@ -25,6 +25,13 @@ def bot():
     for language in languages:
         language_markup.row(telebot.types.KeyboardButton(
             config.get(['languages', language], MSGDIR)))
+    
+    # fail markup for failed registrations
+    fail_markup = telebot.types.ReplyKeyboardMarkup(one_time_keyboard=True)
+    fail_markup.row(telebot.types.KeyboardButton('/start'))
+
+    # deletion markup
+    deletion_markup = telebot.types.ReplyKeyboardRemove()
 
 
     @bot.message_handler(commands=["start"])
@@ -83,27 +90,40 @@ def bot():
         USER_ID = message.chat.id
         USER_LANG = jsondb.select(USERDB, 'language', USER_ID)
 
+        # lowercase mail
+        mail = message.text.lower()
+
         # check mail for validity
         mail_pattern = re.compile("""(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])""")
 
-        if mail_pattern.match(message.text):
+        if mail_pattern.match(mail):
             logging.info(f"starting get_credentials")
 
             # prompt for opening link
             bot.send_message(USER_ID, config.get(
-                ['messages', USER_LANG, 'open_link'], dir=MSGDIR).format(message.text))
+                ['messages', USER_LANG, 'open_link'], dir=MSGDIR).format(mail))
 
             # get credentials from api
-            tgtg.get_credentials(message.text, USER_ID)
+            try:
+                tgtg.get_credentials(mail, USER_ID)
+            except Exception as e:
+                logging.warning(f"Exception in get_credentials: {e}")
 
-            logging.info(f"finished get_credentials")
+                # aborting registration
+                bot.send_message(USER_ID, config.get(
+                    ['messages', USER_LANG, 'login_fail'], dir=MSGDIR), reply_markup=fail_markup)
 
-            # send welcome message
-            bot.send_message(USER_ID, config.get(
-                ['messages', USER_LANG, 'login_success'], dir=MSGDIR))
+                # remove user fragments from db
+                jsondb.remove(USERDB, USER_ID)
+            else:
+                logging.info(f"finished get_credentials")
 
-            # remove cookie to enable main loop to resume
-            cookie.rm('registration')
+                # send welcome message
+                bot.send_message(USER_ID, config.get(
+                    ['messages', USER_LANG, 'login_success'], dir=MSGDIR))
+            finally:
+                # remove cookie to enable main loop to resume
+                cookie.rm('registration')
         else:
             logging.info(f"invalid mail")
 
@@ -129,13 +149,10 @@ def bot():
             # write language to db
             jsondb.insert(USERDB, 'language', USER_LANG, USER_ID)
 
-            # delete language selection markup
-            delete_language_markup = telebot.types.ReplyKeyboardRemove()
-
             # prompt for mail input
             bot.send_message(USER_ID, config.get(
                 ['messages', USER_LANG, 'get_mail'], dir=MSGDIR),
-                reply_markup=delete_language_markup)
+                reply_markup=deletion_markup)
 
             bot.register_next_step_handler_by_chat_id(int(USER_ID), mail_handler)
         else:
