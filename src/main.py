@@ -40,4 +40,7 @@ if __name__ == '__main__':
         p.join()
 
         # check availability
-        tgtg.check_availability()
+        try:
+            tgtg.check_availability()
+        except Exception as e:
+            logging.warning(f"Exception while checking availability: {e}")
