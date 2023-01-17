@@ -14,7 +14,10 @@ def get_credentials(email, user_id):
     client = TgtgClient(email=email)
 
     # get credentials
-    credentials = client.get_credentials()
+    try:
+        credentials = client.get_credentials()
+    except:
+        raise
 
     # write credentials to db
     for key in credentials:
